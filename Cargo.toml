@@ -1,0 +1,24 @@
+[package]
+name = "sk_core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "Apache-2.0"
+description = "Sovereign shared Rust PQC core: hybrid X25519+ML-KEM-768 KEM combiner and the SKChat DM epoch-ratchet key schedule. Clean-room of the SKComms/SKChat Python; byte-for-byte interoperable."
+repository = "https://github.com/smilinTux/sk-core"
+keywords = ["pqc", "ml-kem", "x25519", "hybrid", "kem"]
+categories = ["cryptography"]
+
+[lib]
+name = "sk_core"
+
+[dependencies]
+x25519-dalek = { version = "2", features = ["static_secrets"] }
+ml-kem = "0.2.1"
+hkdf = "0.12"
+sha2 = "0.10"
+rand_core = "0.6"
+rand = "0.8"
+
+[dev-dependencies]
+hex = "0.4"
