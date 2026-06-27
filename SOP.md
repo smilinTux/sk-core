@@ -1,4 +1,4 @@
-# SOP — sk_core
+# SOP — sk_pqc
 
 Standard Operating Procedure for the `sk_pqc` crate, per the **sk-standards** DOC_SOP
 9-section template. This is the operational reference for building, testing, releasing,
@@ -122,7 +122,7 @@ Tests are inline `#[cfg(test)] mod tests` per module, plus `tests/integration.rs
 ```bash
 cargo test                   # all unit + integration tests
 cargo test --doc             # doctests (usage sketches)
-cargo test -p sk_core kem    # a single module's tests
+cargo test -p sk_pqc kem    # a single module's tests
 ```
 
 Each module covers four test classes:
@@ -181,7 +181,7 @@ cargo doc --no-deps
 
 # 2. Dry-run the package, then publish.
 cargo publish --dry-run
-cargo publish            # requires a crates.io token; repo = github.com/smilinTux/sk-core
+cargo publish            # requires a crates.io token; repo = github.com/smilinTux/sk-pqc-rs
 ```
 
 Tag the release `v<version>` and record the parity-verification evidence (which Python /

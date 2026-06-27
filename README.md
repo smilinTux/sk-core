@@ -1,4 +1,4 @@
-# sk_core
+# sk_pqc
 
 > ⚠️ **Experimental · pre-1.0 · NOT independently security-audited.** Clean-room reference implementation: tested + Python-parity-verified, but no third-party audit, fuzzing, or formal review. Binds vetted crates (RustCrypto `ml-kem`, `x25519-dalek`); the wiring is original. **Review before production use.**
 

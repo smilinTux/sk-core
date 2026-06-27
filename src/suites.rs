@@ -288,7 +288,7 @@ impl Registry {
                 ],
                 &["FIPS 203", "RFC 7748", "RFC 5869"],
                 "LIVE hybrid X25519 || ML-KEM-768 key-encapsulation primitive \
-                 (sk_core::kem). Secret unless BOTH primitives break. \
+                 (sk_pqc::kem). Secret unless BOTH primitives break. \
                  Cross-impl interoperable with sk_pqc (Dart) and skcomms.pqkem.",
                 true,
             )

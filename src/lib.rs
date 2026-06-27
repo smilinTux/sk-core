@@ -1,4 +1,4 @@
-//! # sk_core — sovereign shared Rust PQC core
+//! # sk_pqc — sovereign shared Rust PQC core
 //!
 //! Foundation primitives for the SK ecosystem's confidentiality surfaces, in a
 //! small clean-room Rust library that is **byte-for-byte interoperable** with the

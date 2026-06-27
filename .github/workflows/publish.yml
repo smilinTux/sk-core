@@ -1,6 +1,6 @@
-# Publish sk-core to crates.io via TRUSTED PUBLISHING (OIDC) — no token stored.
-# One-time setup (Chef, browser, AFTER the crate name exists): crates.io → sk-core →
-#   Settings → Trusted Publishing → add GitHub: owner smilinTux, repo sk-core,
+# Publish sk-pqc to crates.io via TRUSTED PUBLISHING (OIDC) — no token stored.
+# One-time setup (Chef, browser, AFTER the crate name exists): crates.io → sk-pqc →
+#   Settings → Trusted Publishing → add GitHub: owner smilinTux, repo sk-pqc,
 #   workflow publish.yml, environment release.
 # Then pushing a v* tag publishes. NOTE: the *first ever* publish must claim the name
 # with a one-time token (cargo publish) — trusted publishing takes over after that.

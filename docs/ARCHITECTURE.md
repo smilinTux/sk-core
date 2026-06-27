@@ -1,4 +1,4 @@
-# Architecture — sk_core
+# Architecture — sk_pqc
 
 This document gives the **data-flow** view of `sk_pqc`, per the sk-standards
 DATA_FLOW_STANDARD: it traces a concrete DM-sealing path **hop by hop**, naming the module,

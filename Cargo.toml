@@ -5,7 +5,7 @@ edition = "2021"
 rust-version = "1.85"
 license = "Apache-2.0"
 description = "Sovereign shared Rust post-quantum crypto core: the full SK confidentiality toolkit — hybrid X25519+ML-KEM-768 KEM, DM + group epoch ratchets, hybrid DM sealing, the pqroute metadata envelope, anonymous-queue addressing, the crypto-suite registry, and the honest self-report. Clean-room of the SKComms/SKChat/SKSecurity Python; byte-for-byte interoperable."
-repository = "https://github.com/smilinTux/sk-core"
+repository = "https://github.com/smilinTux/sk-pqc-rs"
 keywords = ["pqc", "ml-kem", "x25519", "hybrid", "ratchet"]
 categories = ["cryptography"]
 

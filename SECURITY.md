@@ -1,4 +1,4 @@
-# Security policy — sk_core
+# Security policy — sk_pqc
 
 `sk_pqc` is the sovereign shared Rust PQC core for the SK ecosystem. This document states
 its threat model, its cryptographic provenance (what is reused vs. what is original), the
@@ -117,7 +117,7 @@ and Dart implementations before release.
 
 Report privately — **do not** open a public issue for a security report.
 
-- Use GitHub **private vulnerability reporting** on `github.com/smilinTux/sk-core`
+- Use GitHub **private vulnerability reporting** on `github.com/smilinTux/sk-pqc-rs`
   (Security ▸ Report a vulnerability), or
 - Contact the smilinTux maintainers through the org's listed private security channel.
 
