@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>sk-pqc — hybrid X25519 + ML-KEM-768 KEM, in the browser</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0b0e14; color:#cdd6f4; font:15px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+         max-width:860px; margin:2rem auto; padding:0 1rem; }
+  h1 { font-size:1.3rem; color:#89b4fa; }
+  .claim { color:#f9e2af; border-left:3px solid #f9e2af; padding:.4rem .8rem; background:#1e2030; margin:1rem 0; }
+  button { background:#89b4fa; color:#11111b; border:0; padding:.5rem 1rem; border-radius:6px;
+           font:inherit; font-weight:600; cursor:pointer; }
+  pre { background:#11111b; border:1px solid #313244; border-radius:8px; padding:1rem; overflow:auto; white-space:pre-wrap; }
+  .ok { color:#a6e3a1; font-weight:700; }
+  .bad { color:#f38ba8; font-weight:700; }
+  .k { color:#94e2d5; }
+  small { color:#6c7086; }
+</style>
+</head>
+<body>
+<h1>sk-pqc — hybrid KEM round-trip in WASM</h1>
+<p>Pure-Rust <code>sk-pqc</code> core compiled to <code>wasm32-unknown-unknown</code>. Randomness =
+the browser's <code>crypto.getRandomValues</code>.</p>
+<div class="claim">
+  <strong>Honest claim:</strong> this is a <em>hybrid</em> scheme — secure as long as <em>either</em>
+  the classical X25519 leg <em>or</em> the ML-KEM-768 (FIPS&nbsp;203) leg holds. It is <strong>not</strong>
+  "quantum-proof" or "unbreakable".
+</div>
+<button id="run">Run hybrid KEM round-trip</button>
+<pre id="out">click "Run" to execute in your browser…</pre>
+<small>Alice generates a hybrid keypair; Bob encapsulates to her public key; Alice decapsulates.
+Both must derive the identical 32-byte shared secret. We also derive a DM ratchet message key.</small>
+
+<script type="module">
+import init, {
+  hybrid_keypair, hybrid_encap, hybrid_decap, derive_dm_message_key, suite_id
+} from './pkg/sk_pqc_wasm.js';
+
+const out = document.getElementById('out');
+const hex = (u8) => Array.from(u8, b => b.toString(16).padStart(2,'0')).join('');
+const eq  = (a,b) => a.length===b.length && a.every((v,i)=>v===b[i]);
+
+async function run() {
+  const lines = [];
+  const log = (s) => { lines.push(s); out.innerHTML = lines.join('\n'); };
+  try {
+    await init();
+    log(`<span class="k">suite</span>      : ${suite_id()}`);
+
+    // --- 1. Alice generates a hybrid keypair ---
+    const alice = hybrid_keypair();
+    const pub = alice.public_key, priv = alice.private_key;
+    log(`<span class="k">public key</span> : ${pub.length} bytes  (X25519 32 ‖ ML-KEM-768 ek 1184)`);
+    log(`<span class="k">private key</span>: ${priv.length} bytes  (X25519 seed 32 ‖ ML-KEM-768 dk 2400)`);
+
+    // --- 2. Bob encapsulates to Alice's public key ---
+    const enc = hybrid_encap(pub);
+    const ct = enc.ciphertext, bobSS = enc.shared_secret;
+    log(`<span class="k">ciphertext</span> : ${ct.length} bytes  (X25519 eph 32 ‖ ML-KEM-768 ct 1088)`);
+    log(`<span class="k">Bob   ss</span>   : ${hex(bobSS)}  (${bobSS.length} bytes)`);
+
+    // --- 3. Alice decapsulates ---
+    const aliceSS = hybrid_decap(ct, priv);
+    log(`<span class="k">Alice ss</span>   : ${hex(aliceSS)}  (${aliceSS.length} bytes)`);
+
+    const match = eq(Array.from(bobSS), Array.from(aliceSS));
+    log(match
+      ? `\n<span class="ok">✔ HYBRID KEM ROUND-TRIP OK</span> — both sides derived the SAME 32-byte secret.`
+      : `\n<span class="bad">✗ MISMATCH</span> — secrets differ (this should never happen).`);
+
+    // --- 4. Negative control: a different keypair must NOT match ---
+    const mallory = hybrid_keypair();
+    const mSS = hybrid_decap(ct, mallory.private_key);
+    log(eq(Array.from(bobSS), Array.from(mSS))
+      ? `<span class="bad">✗ negative control FAILED</span> — wrong key still matched.`
+      : `<span class="ok">✔ negative control OK</span>  — wrong private key yields a non-matching secret (ML-KEM implicit rejection).`);
+
+    // --- 5. DM ratchet message key (deterministic, index-addressable) ---
+    const epochSecret = aliceSS; // reuse the 32-byte secret as a demo epoch secret
+    const k_e2_i5  = derive_dm_message_key(epochSecret, 2n, 5n);
+    const k_e2_i5b = derive_dm_message_key(epochSecret, 2n, 5n);
+    const k_e2_i6  = derive_dm_message_key(epochSecret, 2n, 6n);
+    log(`\n<span class="k">DM key e2/i5</span>: ${hex(k_e2_i5)}`);
+    log(eq(Array.from(k_e2_i5), Array.from(k_e2_i5b))
+      ? `<span class="ok">✔ deterministic</span> — same (epoch,index) ⇒ same key.`
+      : `<span class="bad">✗</span> non-deterministic.`);
+    log(eq(Array.from(k_e2_i5), Array.from(k_e2_i6))
+      ? `<span class="bad">✗</span> different index gave the same key.`
+      : `<span class="ok">✔ index-separated</span> — index 5 ≠ index 6.`);
+
+    log(`\n<small>All crypto executed locally in your browser via WebAssembly.</small>`);
+  } catch (e) {
+    log(`<span class="bad">ERROR:</span> ${e}`);
+    throw e;
+  }
+}
+document.getElementById('run').addEventListener('click', run);
+run(); // auto-run on load
+</script>
+</body>
+</html>
