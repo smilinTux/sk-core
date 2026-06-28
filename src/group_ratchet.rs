@@ -91,8 +91,7 @@ pub const WRAP_NONCE_LEN: usize = 12;
 pub const WRAPPED_SECRET_LEN: usize = EPOCH_SECRET_LEN + 16;
 /// Total per-member, per-epoch distribution payload size
 /// (`ct(1120) ‖ nonce(12) ‖ wrapped(48)` = 1180).
-pub const WRAPPED_PAYLOAD_LEN: usize =
-    HYBRID_CIPHERTEXT_LEN + WRAP_NONCE_LEN + WRAPPED_SECRET_LEN;
+pub const WRAPPED_PAYLOAD_LEN: usize = HYBRID_CIPHERTEXT_LEN + WRAP_NONCE_LEN + WRAPPED_SECRET_LEN;
 
 /// Default re-key bound: re-key after this many messages in an epoch.
 pub const DEFAULT_REKEY_MSG_BOUND: u64 = 50;
@@ -122,7 +121,10 @@ impl fmt::Display for GroupRatchetError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             GroupRatchetError::BadSecretLen(got) => {
-                write!(f, "epoch_secret must be {EPOCH_SECRET_LEN} bytes, got {got}")
+                write!(
+                    f,
+                    "epoch_secret must be {EPOCH_SECRET_LEN} bytes, got {got}"
+                )
             }
             GroupRatchetError::BadPublicKeyLen(got) => write!(
                 f,
@@ -300,7 +302,9 @@ pub fn unwrap_epoch_secret(
         return Err(GroupRatchetError::BadPayloadLen(payload.len()));
     }
     if member_hybrid_priv.len() != kem::PRIVATE_KEY_LEN {
-        return Err(GroupRatchetError::BadPrivateKeyLen(member_hybrid_priv.len()));
+        return Err(GroupRatchetError::BadPrivateKeyLen(
+            member_hybrid_priv.len(),
+        ));
     }
 
     let ciphertext = &payload[..HYBRID_CIPHERTEXT_LEN];

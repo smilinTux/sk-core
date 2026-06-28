@@ -463,7 +463,13 @@ mod tests {
     #[test]
     fn no_builder_ever_emits_a_forbidden_word() {
         // Exhaustively sweep the construction space the builders cover.
-        let suites = ["x25519-mlkem768", "x25519-pgp-wrap-v1", "aes256-gcm-v1", "", "junk"];
+        let suites = [
+            "x25519-mlkem768",
+            "x25519-pgp-wrap-v1",
+            "aes256-gcm-v1",
+            "",
+            "junk",
+        ];
         for suite in suites {
             for level in [RatchetLevel::L2Oneshot, RatchetLevel::L3Epoch] {
                 for peer in ["", "alice"] {
@@ -483,7 +489,9 @@ mod tests {
         assert!(!is_honest_note("this is quantum-proof"));
         assert!(!is_honest_note("Totally QUANTUM-SAFE!"));
         assert!(!is_honest_note("an unbreakable cipher"));
-        assert!(is_honest_note("hybrid: secure if EITHER leg holds (FIPS 203)"));
+        assert!(is_honest_note(
+            "hybrid: secure if EITHER leg holds (FIPS 203)"
+        ));
     }
 
     #[test]
@@ -508,7 +516,9 @@ mod tests {
         assert_eq!(rpt.summary.total_surfaces, 2);
         assert_eq!(rpt.summary.quantum_resistant, 1);
         assert_eq!(rpt.summary.classical, 1);
-        assert!(rpt.honest_claim.contains("NOT quantum-resistant end-to-end"));
+        assert!(rpt
+            .honest_claim
+            .contains("NOT quantum-resistant end-to-end"));
         assert!(is_honest_note(&rpt.honest_claim));
         // JSON round-trips with the expected keys.
         let v: serde_json::Value = serde_json::from_str(&rpt.to_json()).unwrap();

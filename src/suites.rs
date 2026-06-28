@@ -401,14 +401,8 @@ mod tests {
     #[test]
     fn seeded_registry_has_the_three_named_suites() {
         let r = Registry::seeded();
-        assert_eq!(
-            r.suite_status("x25519-mlkem768"),
-            SuiteStatus::HybridPq
-        );
-        assert_eq!(
-            r.suite_status("x25519-pgp-wrap-v1"),
-            SuiteStatus::Classical
-        );
+        assert_eq!(r.suite_status("x25519-mlkem768"), SuiteStatus::HybridPq);
+        assert_eq!(r.suite_status("x25519-pgp-wrap-v1"), SuiteStatus::Classical);
         assert_eq!(r.suite_status("aes256-gcm-v1"), SuiteStatus::Symmetric);
         // The hybrid KEM is the migration target for the classical wrap.
         assert_eq!(

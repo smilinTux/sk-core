@@ -75,7 +75,9 @@ use sha2::Sha256;
 use std::error::Error;
 use std::fmt;
 
-use crate::kem::{self, CIPHERTEXT_LEN as HYBRID_CIPHERTEXT_LEN, PUBLIC_KEY_LEN as HYBRID_PUBLIC_KEY_LEN};
+use crate::kem::{
+    self, CIPHERTEXT_LEN as HYBRID_CIPHERTEXT_LEN, PUBLIC_KEY_LEN as HYBRID_PUBLIC_KEY_LEN,
+};
 
 // --- Interop constants (DO NOT CHANGE — pinned by skcomms/pqroute.py) --------
 
@@ -357,7 +359,8 @@ pub fn seal_routed(
 /// [`PqRouteError::Format`] if the blob is too short or the header isn't valid JSON.
 pub fn read_route_header(blob: &[u8]) -> Result<Value, PqRouteError> {
     let (route_bytes, _sealed) = split_outer(blob)?;
-    parse_json(route_bytes).map_err(|e| PqRouteError::Format(format!("route header not valid JSON: {e}")))
+    parse_json(route_bytes)
+        .map_err(|e| PqRouteError::Format(format!("route header not valid JSON: {e}")))
 }
 
 /// Return a blob with the outer header replaced, the sealed inner untouched.
@@ -474,7 +477,9 @@ fn split_outer(blob: &[u8]) -> Result<(&[u8], &[u8]), PqRouteError> {
         .checked_add(hdr_len)
         .ok_or_else(|| PqRouteError::Format("route header length overflow".into()))?;
     if end > blob.len() {
-        return Err(PqRouteError::Format("route header length exceeds blob size".into()));
+        return Err(PqRouteError::Format(
+            "route header length exceeds blob size".into(),
+        ));
     }
     Ok((&blob[start..end], &blob[end..]))
 }
@@ -535,7 +540,10 @@ mod tests {
     #[test]
     fn parity_canonical_surrogate_pair() {
         let v = json!({"e": "😀"});
-        assert_eq!(hex::encode(canonical(&v)), "7b2265223a225c75643833645c7564653030227d");
+        assert_eq!(
+            hex::encode(canonical(&v)),
+            "7b2265223a225c75643833645c7564653030227d"
+        );
     }
 
     /// PARITY: the derived AES-256 wrap key matches pyca's HKDF for a fixed shared
@@ -599,7 +607,10 @@ mod tests {
 
         let tampered = replace_route_header(&blob, &json!({"to_relay": "evil", "v": 1})).unwrap();
         // The relay still reads the (rewritten) header fine...
-        assert_eq!(read_route_header(&tampered).unwrap(), json!({"to_relay": "evil", "v": 1}));
+        assert_eq!(
+            read_route_header(&tampered).unwrap(),
+            json!({"to_relay": "evil", "v": 1})
+        );
         // ...but the destination's open fails: the header is authenticated.
         match open_routed(&tampered, &kp.private_key) {
             Err(PqRouteError::Open(_)) => {}
@@ -611,7 +622,8 @@ mod tests {
     #[test]
     fn tampered_inner_is_rejected() {
         let kp = kem::hybrid_keypair();
-        let blob = seal_routed(&json!({"d": 1}), b"body", &kp.public_key, &json!({"v": 1})).unwrap();
+        let blob =
+            seal_routed(&json!({"d": 1}), b"body", &kp.public_key, &json!({"v": 1})).unwrap();
         let mut bad = blob.clone();
         let last = bad.len() - 1;
         bad[last] ^= 0x01; // flip a tag/body byte
@@ -626,7 +638,8 @@ mod tests {
     fn wrong_key_is_rejected() {
         let kp = kem::hybrid_keypair();
         let other = kem::hybrid_keypair();
-        let blob = seal_routed(&json!({"d": 1}), b"body", &kp.public_key, &json!({"v": 1})).unwrap();
+        let blob =
+            seal_routed(&json!({"d": 1}), b"body", &kp.public_key, &json!({"v": 1})).unwrap();
         match open_routed(&blob, &other.private_key) {
             Err(PqRouteError::Open(_)) => {}
             other => panic!("expected Open error, got {other:?}"),

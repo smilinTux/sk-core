@@ -134,7 +134,9 @@ pub fn hybrid_keypair() -> HybridKeyPair {
 ///
 /// Returns `(ciphertext, shared_secret)` — ciphertext is 1120 bytes
 /// (`X25519_eph_pub ‖ MLKEM768_ct`), shared secret is 32 bytes.
-pub fn hybrid_encap(peer_public_key: &[u8]) -> Result<(Vec<u8>, [u8; SHARED_SECRET_LEN]), KemError> {
+pub fn hybrid_encap(
+    peer_public_key: &[u8],
+) -> Result<(Vec<u8>, [u8; SHARED_SECRET_LEN]), KemError> {
     expect_len("hybrid public key", peer_public_key, PUBLIC_KEY_LEN)?;
 
     let mut x_peer_arr = [0u8; X25519_PUB_LEN];

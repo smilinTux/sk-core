@@ -67,7 +67,10 @@ impl fmt::Display for RatchetError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             RatchetError::BadSecretLen(got) => {
-                write!(f, "epoch_secret must be {EPOCH_SECRET_LEN} bytes, got {got}")
+                write!(
+                    f,
+                    "epoch_secret must be {EPOCH_SECRET_LEN} bytes, got {got}"
+                )
             }
             RatchetError::BadPublicKeyLen(got) => write!(
                 f,

@@ -30,7 +30,10 @@ fn kem_encap_decap_roundtrip_equal_secrets() {
     assert_eq!(ct.len(), CIPHERTEXT_LEN, "ciphertext len");
     assert_eq!(ss_enc.len(), SHARED_SECRET_LEN, "shared secret len");
     let ss_dec = hybrid_decap(&ct, &kp.private_key).expect("decap");
-    assert_eq!(ss_enc, ss_dec, "encap and decap shared secrets must be equal");
+    assert_eq!(
+        ss_enc, ss_dec,
+        "encap and decap shared secrets must be equal"
+    );
 }
 
 #[test]
@@ -39,7 +42,10 @@ fn kem_distinct_keypairs_distinct_secrets() {
     let b = hybrid_keypair();
     let (_ct_a, ss_a) = hybrid_encap(&a.public_key).expect("encap a");
     let (_ct_b, ss_b) = hybrid_encap(&b.public_key).expect("encap b");
-    assert_ne!(ss_a, ss_b, "different recipients should yield different secrets");
+    assert_ne!(
+        ss_a, ss_b,
+        "different recipients should yield different secrets"
+    );
 }
 
 #[test]
@@ -52,7 +58,10 @@ fn kem_rejects_wrong_length_public_key() {
 fn kem_rejects_wrong_length_ciphertext() {
     let kp = hybrid_keypair();
     let bad = vec![0u8; CIPHERTEXT_LEN - 1];
-    assert!(hybrid_decap(&bad, &kp.private_key).is_err(), "short ciphertext must error");
+    assert!(
+        hybrid_decap(&bad, &kp.private_key).is_err(),
+        "short ciphertext must error"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -89,7 +98,10 @@ fn ratchet_derive_epoch_distinct() {
 #[test]
 fn ratchet_rejects_wrong_length_secret() {
     let bad = [0u8; 31];
-    assert!(derive_dm_message_key(&bad, 0, 0).is_err(), "short epoch_secret must error");
+    assert!(
+        derive_dm_message_key(&bad, 0, 0).is_err(),
+        "short epoch_secret must error"
+    );
 }
 
 /// PARITY: hardcoded vectors computed by running the *real*
@@ -98,10 +110,26 @@ fn ratchet_rejects_wrong_length_secret() {
 #[test]
 fn ratchet_parity_with_python() {
     let cases: &[(u64, u64, &str)] = &[
-        (7, 3, "abca41b038c1565004c201741f896ae0c122fd8f6716ba4b85c850e5d163e6bc"),
-        (7, 4, "ee18766d0fb4c31b03bb544a300232008fee43197d177d584bbed77ebd497834"),
-        (0, 0, "976feb338842bce61bde060cc8559d66472e1c1c9edcfba3ae70cabb39e3f39a"),
-        (1, 0, "5cf5ac603c0e9dd2165bf583930e5a2b5549e3b98fd1057de3fead1184610422"),
+        (
+            7,
+            3,
+            "abca41b038c1565004c201741f896ae0c122fd8f6716ba4b85c850e5d163e6bc",
+        ),
+        (
+            7,
+            4,
+            "ee18766d0fb4c31b03bb544a300232008fee43197d177d584bbed77ebd497834",
+        ),
+        (
+            0,
+            0,
+            "976feb338842bce61bde060cc8559d66472e1c1c9edcfba3ae70cabb39e3f39a",
+        ),
+        (
+            1,
+            0,
+            "5cf5ac603c0e9dd2165bf583930e5a2b5549e3b98fd1057de3fead1184610422",
+        ),
     ];
     for (epoch, index, expected_hex) in cases {
         let got = derive_dm_message_key(&ES, *epoch, *index).expect("derive");
@@ -119,15 +147,45 @@ fn ratchet_parity_with_python() {
 
 #[test]
 fn rekey_triggers_on_message_bound() {
-    assert!(!should_rekey(DEFAULT_REKEY_MSG_BOUND - 1, 0.0, 0.0, DEFAULT_REKEY_MSG_BOUND, DEFAULT_REKEY_AGE_SECONDS));
-    assert!(should_rekey(DEFAULT_REKEY_MSG_BOUND, 0.0, 0.0, DEFAULT_REKEY_MSG_BOUND, DEFAULT_REKEY_AGE_SECONDS));
-    assert!(should_rekey(DEFAULT_REKEY_MSG_BOUND + 5, 0.0, 0.0, DEFAULT_REKEY_MSG_BOUND, DEFAULT_REKEY_AGE_SECONDS));
+    assert!(!should_rekey(
+        DEFAULT_REKEY_MSG_BOUND - 1,
+        0.0,
+        0.0,
+        DEFAULT_REKEY_MSG_BOUND,
+        DEFAULT_REKEY_AGE_SECONDS
+    ));
+    assert!(should_rekey(
+        DEFAULT_REKEY_MSG_BOUND,
+        0.0,
+        0.0,
+        DEFAULT_REKEY_MSG_BOUND,
+        DEFAULT_REKEY_AGE_SECONDS
+    ));
+    assert!(should_rekey(
+        DEFAULT_REKEY_MSG_BOUND + 5,
+        0.0,
+        0.0,
+        DEFAULT_REKEY_MSG_BOUND,
+        DEFAULT_REKEY_AGE_SECONDS
+    ));
 }
 
 #[test]
 fn rekey_triggers_on_age_bound() {
     let age = DEFAULT_REKEY_AGE_SECONDS as f64;
     // Not enough messages, but epoch is old enough.
-    assert!(!should_rekey(0, 0.0, age - 1.0, DEFAULT_REKEY_MSG_BOUND, DEFAULT_REKEY_AGE_SECONDS));
-    assert!(should_rekey(0, 0.0, age, DEFAULT_REKEY_MSG_BOUND, DEFAULT_REKEY_AGE_SECONDS));
+    assert!(!should_rekey(
+        0,
+        0.0,
+        age - 1.0,
+        DEFAULT_REKEY_MSG_BOUND,
+        DEFAULT_REKEY_AGE_SECONDS
+    ));
+    assert!(should_rekey(
+        0,
+        0.0,
+        age,
+        DEFAULT_REKEY_MSG_BOUND,
+        DEFAULT_REKEY_AGE_SECONDS
+    ));
 }

@@ -220,7 +220,9 @@ impl SealedDmFrame {
             }
         };
         if off != blob.len() {
-            return Err(DmSessionError::BadToken("trailing bytes after frame".into()));
+            return Err(DmSessionError::BadToken(
+                "trailing bytes after frame".into(),
+            ));
         }
         Ok(SealedDmFrame {
             epoch,
@@ -618,7 +620,11 @@ mod tests {
         let mut alice = DmSession::new("bob");
 
         let frames: Vec<_> = (0..5)
-            .map(|i| alice.seal(format!("m{i}").as_bytes(), &bob.public_key).unwrap())
+            .map(|i| {
+                alice
+                    .seal(format!("m{i}").as_bytes(), &bob.public_key)
+                    .unwrap()
+            })
             .collect();
 
         for (i, frame) in frames.iter().enumerate().take(KAM_REPEAT as usize) {

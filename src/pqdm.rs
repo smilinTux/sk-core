@@ -364,7 +364,8 @@ mod tests {
     #[test]
     fn aad_matches_python_canonical_json() {
         let aad = downgrade_lock_aad(HYBRID_SUITE, "a", "b", None);
-        let expected = r#"{"negotiated_suite":"x25519-mlkem768","recipient":"b","sender":"a","v":1}"#;
+        let expected =
+            r#"{"negotiated_suite":"x25519-mlkem768","recipient":"b","sender":"a","v":1}"#;
         assert_eq!(aad, expected.as_bytes());
         // And the exact hex, as emitted by the reference Python.
         assert_eq!(
@@ -381,7 +382,10 @@ mod tests {
     fn aad_appends_extra_verbatim() {
         let aad = downgrade_lock_aad(HYBRID_SUITE, "a", "b", Some(b"\x00\xff"));
         assert!(aad.ends_with(b"\x00\xff"));
-        assert_eq!(aad.len(), downgrade_lock_aad(HYBRID_SUITE, "a", "b", None).len() + 2);
+        assert_eq!(
+            aad.len(),
+            downgrade_lock_aad(HYBRID_SUITE, "a", "b", None).len() + 2
+        );
     }
 
     /// The wrap-key HKDF must match the Python `_wrap_key` for a fixed shared
@@ -427,8 +431,14 @@ mod tests {
         let s1 = seal(b"x", &kp.public_key, "a", "b").unwrap();
         let s2 = seal(b"x", &kp.public_key, "a", "b").unwrap();
         assert_ne!(s1, s2);
-        assert_eq!(open_sealed(&s1, &kp.private_key, "a", "b", HYBRID_SUITE).unwrap(), b"x");
-        assert_eq!(open_sealed(&s2, &kp.private_key, "a", "b", HYBRID_SUITE).unwrap(), b"x");
+        assert_eq!(
+            open_sealed(&s1, &kp.private_key, "a", "b", HYBRID_SUITE).unwrap(),
+            b"x"
+        );
+        assert_eq!(
+            open_sealed(&s2, &kp.private_key, "a", "b", HYBRID_SUITE).unwrap(),
+            b"x"
+        );
     }
 
     /// A recipient tricked into a classical `expected_suite` fails the open: the

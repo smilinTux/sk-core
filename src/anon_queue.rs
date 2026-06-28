@@ -243,8 +243,7 @@ type HmacSha256 = Hmac<Sha256>;
 pub fn auth_tag(secret: &[u8], message: &[u8], nonce: &[u8]) -> Vec<u8> {
     // `new_from_slice` accepts any key length (HMAC takes variable-length keys),
     // so this never fails for HMAC — mirrors Python `hmac.HMAC(secret, SHA256())`.
-    let mut mac =
-        HmacSha256::new_from_slice(secret).expect("HMAC accepts keys of any length");
+    let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC accepts keys of any length");
     mac.update(nonce);
     mac.update(message);
     mac.finalize().into_bytes().to_vec()
@@ -413,7 +412,12 @@ mod tests {
         *bad.last_mut().unwrap() ^= 0x01;
         assert!(!verify_tag(secret, message, nonce, &bad));
         // Wrong-length tag -> reject (constant-time compare short-circuits on len).
-        assert!(!verify_tag(secret, message, nonce, &tag[..AUTH_TAG_LEN - 1]));
+        assert!(!verify_tag(
+            secret,
+            message,
+            nonce,
+            &tag[..AUTH_TAG_LEN - 1]
+        ));
         assert!(!verify_tag(secret, message, nonce, &[]));
     }
 }
