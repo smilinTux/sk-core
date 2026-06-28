@@ -1,7 +1,7 @@
 //! Optional **flutter_rust_bridge (frb)** API surface — gated behind the `dart`
 //! feature (off by default).
 //!
-//! This is the Dart twin of [`crate::python`]: it lets the Dart `sk_pqc`
+//! This is the Dart twin of `crate::python`: it lets the Dart `sk_pqc`
 //! package be backed by the **same pure-Rust core** (the ML-KEM-768 leg is
 //! RustCrypto `ml-kem` — **FIPS 203**; the X25519 leg is `x25519-dalek`), the
 //! way the PyO3 bindings back the Python services. flutter_rust_bridge turns

@@ -34,7 +34,7 @@ const EPOCH_SALT_PREFIX: &[u8] = b"skchat/dm-epoch/";
 const MSG_INFO_PREFIX: &[u8] = b"skchat/dm-ratchet/msg/v1/";
 
 /// HKDF `info` for the per-epoch wrap key (RFC 5869). Equals Python's
-/// `_INFO_DM_WRAP`. Distinct from [`MSG_INFO_PREFIX`] and the `pqdm` wrap label,
+/// `_INFO_DM_WRAP`. Distinct from `MSG_INFO_PREFIX` and the `pqdm` wrap label,
 /// so an epoch-wrap key can never collide with a message key or an envelope key.
 pub const INFO_DM_WRAP: &[u8] = b"skchat/dm-ratchet/epoch-wrap/v1";
 
@@ -183,7 +183,7 @@ pub fn new_epoch_secret() -> [u8; EPOCH_SECRET_LEN] {
 ///
 /// Uses [`crate::kem::hybrid_encap`] (X25519 ‖ ML-KEM-768, **FIPS 203**) for a
 /// one-time shared secret, HKDF-expands it to an AES-256 wrap key
-/// ([`dm_wrap_key`]), and AES-256-GCM-encrypts the epoch secret with a random
+/// (`dm_wrap_key`), and AES-256-GCM-encrypts the epoch secret with a random
 /// 12-byte nonce and **no** associated data. The KEM ciphertext travels in the
 /// blob so the peer can decapsulate — this post-quantum material is the per-epoch
 /// cost, **not** a per-message cost.
