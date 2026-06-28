@@ -2,15 +2,16 @@
 //!
 //! Clean-room of `skcomms/src/skcomms/anon_queue.py`, byte-for-byte
 //! interoperable with it. This is the *addressing + deniable-authentication*
-//! primitive that a future SimpleX-style unidirectional message queue composes
+//! primitive that a future unidirectional message queue composes
 //! on top of. It is the building block, **NOT a transport**: there is no relay,
 //! no network, no store, no delivery here — only opaque id generation, an
 //! `aqid:` address codec, and a repudiable shared-secret authenticator.
 //!
-//! # Clean-room notice
+//! # Provenance
 //!
-//! SimpleX Chat / SMP is **AGPL-3.0**. Nothing here is derived from, copied
-//! from, or a translation of their source. Only the *protocol idea* is borrowed
+//! Inspired by no-identity / mix-network messaging designs (clean-room,
+//! original implementation). Nothing here is derived from, copied
+//! from, or a translation of any third-party source. Only the *protocol idea* is borrowed
 //! — that a queue can be addressed without any long-term identity by giving the
 //! sender and the recipient two **independent, uncorrelated** opaque ids, so
 //! that the relay holding the queue cannot link "who subscribes" to "who sends".

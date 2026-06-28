@@ -62,8 +62,8 @@
 //! Hybrid sealing only. A KEM failure (e.g. a malformed key) is a hard error — this
 //! module never falls back to a classical-only routing layer.
 //!
-//! CLEAN-ROOM: the routing-split *idea* is inspired by mix/relay designs (incl.
-//! SimpleX) but no third-party code was used — only the SK primitives above.
+//! Inspired by no-identity / mix-network messaging designs (clean-room, original
+//! implementation): only the routing-split idea, built solely on the SK primitives above.
 
 use aes_gcm::aead::{Aead, KeyInit, Payload};
 use aes_gcm::{Aes256Gcm, Key, Nonce};
