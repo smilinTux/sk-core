@@ -1,5 +1,6 @@
 # sk_pqc
 
+[![CI](https://github.com/smilinTux/sk-pqc-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/smilinTux/sk-pqc-rs/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/sk-pqc.svg?logo=rust)](https://crates.io/crates/sk-pqc)
 [![docs.rs](https://img.shields.io/docsrs/sk-pqc?logo=docs.rs)](https://docs.rs/sk-pqc)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
