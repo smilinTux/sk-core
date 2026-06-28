@@ -1,0 +1,113 @@
+# CI for sk-pqc-rs — the REAL test suite of THIS repo.
+#
+# The DEFAULT build is pure-Rust: `cargo test` compiles the crate with default
+# features (no pyo3, no flutter_rust_bridge) and runs the 87 in-tree unit tests
+# (src/*.rs) + 12 integration tests (tests/integration.rs) = 99 tests. That is
+# the known-passing local suite this workflow mirrors. The optional `python`
+# (PyO3/maturin wheel) and `dart` (flutter_rust_bridge) features are built in
+# SEPARATE, feature-gated jobs so a failure there is loud and never silently
+# green — and never drags the pure-Rust default red.
+#
+# Toolchain: the crate declares `rust-version = "1.85"` and ships a v4
+# Cargo.lock, so the test job pins the 1.85.0 MSRV AND tracks `stable`.
+#
+# Honest scope of the optional jobs:
+#   - python-wheel builds the abi3 wheel with maturin and smoke-imports it. It
+#     does NOT run tests/parity_python.py, because that needs the sibling
+#     pure-Python `sk_pqc` (liboqs + pyca), which is not vendored in this repo.
+#   - dart-feature compiles the feature-gated frb Rust side (using the committed
+#     src/frb_generated.rs). It does NOT run flutter_rust_bridge_codegen or the
+#     Dart parity harness, because the sibling sk-pqc-dart checkout + Dart SDK
+#     are not present on the runner.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Pure-Rust default suite — the 99 in-tree tests. Pinned MSRV + stable.
+  test:
+    name: test (rust ${{ matrix.rust }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: ["1.85.0", "stable"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust ${{ matrix.rust }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+      - run: rustc --version && cargo --version
+      # --locked => use the committed v4 Cargo.lock as-is (fails if stale).
+      # Default features only => pure-Rust, no pyo3 / no frb.
+      - name: cargo test (default features, pure-Rust)
+        run: cargo test --locked --all-targets --verbose
+
+  # Formatting gate.
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  # Lint gate — warnings are hard errors.
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --locked --all-targets -- -D warnings
+
+  # OPTIONAL python feature: build the maturin wheel and smoke-import it.
+  # Separate job — a failure here is loud and isolated from the pure-Rust suite.
+  python-wheel:
+    name: python wheel (maturin)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip "maturin>=1.5,<2.0"
+      # --features python => compiles the gated PyO3 #[pymodule] into the cdylib.
+      - name: maturin build (--features python)
+        run: maturin build --release --features python --out dist
+      - name: smoke-import the built wheel
+        run: |
+          python -m pip install --no-index --find-links dist sk-pqc-rs
+          python -c "import sk_pqc_rs; print('imported sk_pqc_rs OK')"
+
+  # OPTIONAL dart feature: compile the flutter_rust_bridge-gated Rust side.
+  # Uses the committed src/frb_generated.rs; no codegen / no Dart SDK needed.
+  dart-feature:
+    name: dart feature (cargo build --features dart)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo build (--features dart)
+        run: cargo build --locked --features dart --verbose
