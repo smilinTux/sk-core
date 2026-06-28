@@ -1,0 +1,25 @@
+[package]
+name = "sk-pqc-wasm"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "WASM bindings for the sk-pqc hybrid X25519+ML-KEM-768 core (browser demo)"
+repository = "https://github.com/smilinTux/sk-pqc-rs"
+
+# Standalone crate (NOT a workspace member of the parent): it path-depends on the
+# pure-Rust sk-pqc core one directory up and compiles it to wasm32 unchanged.
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# The pure-Rust core, default features (no pyo3 / no frb) — compiles to wasm32.
+sk-pqc = { path = "..", package = "sk-pqc", default-features = false }
+wasm-bindgen = "0.2"
+hex = "0.4"
+# getrandom MUST have the `js` feature on wasm32-unknown-unknown so OsRng (used by
+# x25519-dalek + ml-kem keygen/encap) is backed by the browser crypto.getRandomValues.
+getrandom = { version = "0.2", features = ["js"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
