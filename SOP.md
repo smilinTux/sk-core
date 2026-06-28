@@ -187,6 +187,12 @@ cargo publish            # requires a crates.io token; repo = github.com/smilinT
 Tag the release `v<version>` and record the parity-verification evidence (which Python /
 Dart commit the vectors were checked against) in the release notes.
 
+### Front-end / Exposure
+
+Per [sk-standards `UNIFIED_INGRESS_STANDARD.md`](https://github.com/smilinTux/sk-standards/blob/main/standards/UNIFIED_INGRESS_STANDARD.md):
+**N/A — no network surface (library).** `sk_pqc` is a published crates.io library; it has
+no runtime, daemon, port, or listener (see §8) and answers no public `:443` route.
+
 ---
 
 ## 8. Operations & monitoring
